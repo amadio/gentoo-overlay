@@ -103,11 +103,11 @@ src_prepare() {
 	# sh while bootstrapping for the first time, This works around bug 309825
 	sed -i -e '1s:sh:bash:' support/bashbug.sh || die
 
-	# modify the bashrc file for prefix
+	# modify the bashrc-r1 file for prefix
 	pushd "${T}" > /dev/null || die
-	cp "${FILESDIR}"/bashrc .
-	epatch "${FILESDIR}"/bashrc-prefix.patch
-	eprefixify bashrc
+	cp "${FILESDIR}"/bashrc-r1 .
+	epatch "${FILESDIR}"/bashrc-prefix-r1.patch
+	eprefixify bashrc-r1
 	popd > /dev/null
 
 	# DON'T YOU EVER PUT eautoreconf OR SIMILAR HERE!  THIS IS A CRITICAL
@@ -237,8 +237,9 @@ src_install() {
 	dosym bash /bin/rbash
 
 	insinto /etc/bash
-	doins "${T}"/bashrc
 	doins "${FILESDIR}"/bash_logout
+	newins "${T}"/bashrc-r1 bashrc
+	keepdir /etc/bash/bashrc.d
 	insinto /etc/skel
 	for f in bash{_logout,_profile,rc} ; do
 		newins "${FILESDIR}"/dot-${f} .${f}
