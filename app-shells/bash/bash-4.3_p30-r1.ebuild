@@ -268,7 +268,7 @@ src_install() {
 	fi
 
 	if use examples ; then
-		for d in examples/{functions,misc,scripts,scripts,startup-files} ; do
+		for d in examples/{functions,misc,scripts,startup-files} ; do
 			exeinto /usr/share/doc/${PF}/${d}
 			insinto /usr/share/doc/${PF}/${d}
 			for f in ${d}/* ; do
