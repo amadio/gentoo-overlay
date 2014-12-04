@@ -1,0 +1,43 @@
+--- bashrc-r1	2014-12-04 16:21:37.765632382 -0200
++++ bashrc-r1	2014-12-04 16:20:51.077393468 -0200
+@@ -1,4 +1,4 @@
+-# /etc/bash/bashrc
++# @GENTOO_PORTAGE_EPREFIX@/etc/bash/bashrc
+ #
+ # This file is sourced by all *interactive* bash shells on startup,
+ # including some apparently interactive shells such as scp and rcp
+@@ -48,7 +48,7 @@
+ safe_term=${TERM//[^[:alnum:]]/?}   # sanitize TERM
+ match_lhs=""
+ [[ -f ~/.dir_colors   ]] && match_lhs="${match_lhs}$(<~/.dir_colors)"
+-[[ -f /etc/DIR_COLORS ]] && match_lhs="${match_lhs}$(</etc/DIR_COLORS)"
++[[ -f "@GENTOO_PORTAGE_EPREFIX@"/etc/DIR_COLORS ]] && match_lhs="${match_lhs}$(<"@GENTOO_PORTAGE_EPREFIX@"/etc/DIR_COLORS)"
+ [[ -z ${match_lhs}    ]] \
+ 	&& type -P dircolors >/dev/null \
+ 	&& match_lhs=$(dircolors --print-database)
+@@ -56,12 +56,10 @@
+ 
+ if ${use_color} ; then
+ 	# Enable colors for ls, etc.  Prefer ~/.dir_colors #64489
+-	if type -P dircolors >/dev/null ; then
+-		if [[ -f ~/.dir_colors ]] ; then
+-			eval $(dircolors -b ~/.dir_colors)
+-		elif [[ -f /etc/DIR_COLORS ]] ; then
+-			eval $(dircolors -b /etc/DIR_COLORS)
+-		fi
++	if [[ -f ~/.dir_colors ]] ; then
++		eval $("@GENTOO_PORTAGE_EPREFIX@"/usr/bin/dircolors -b ~/.dir_colors);
++	elif [[ -f "@GENTOO_PORTAGE_EPREFIX@"/etc/DIR_COLORS ]] ; then
++		eval $("@GENTOO_PORTAGE_EPREFIX@"/usr/bin/dircolors -b "@GENTOO_PORTAGE_EPREFIX@"/etc/DIR_COLORS)
+ 	fi
+ 
+ 	if [[ ${EUID} == 0 ]] ; then
+@@ -84,7 +82,7 @@
+ 	fi
+ fi
+ 
+-for sh in /etc/bash/bashrc.d/* ; do
++for sh in "@GENTOO_PORTAGE_EPREFIX@"/etc/bash/bashrc.d/* ; do
+ 	[[ -r ${sh} ]] && source "${sh}"
+ done
+ 
