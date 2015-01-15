@@ -3,7 +3,7 @@
 
 EAPI=4
 
-inherit eutils multilib toolchain-funcs flag-o-matic multilib-minimal
+inherit eutils multilib toolchain-funcs flag-o-matic multilib-minimal libtool
 
 # Official patches
 # See ftp://ftp.cwru.edu/pub/bash/readline-6.3-patches/
@@ -29,10 +29,16 @@ patches() {
 
 DESCRIPTION="Another cute console display library"
 HOMEPAGE="http://cnswww.cns.cwru.edu/php/chet/readline/rltop.html"
-SRC_URI="mirror://gnu/${PN}/${MY_P}.tar.gz $(patches)"
+HOSTLTV="0.1.0"
+HOSTLT="host-libtool-${HOSTLTV}"
+HOSTLT_URI="http://github.com/haubi/host-libtool/releases/download/v${HOSTLTV}/${HOSTLT}.tar.gz"
+SRC_URI="mirror://gnu/${PN}/${MY_P}.tar.gz $(patches) ${HOSTLT_URI}"
+HOSTLT_S=${WORKDIR}/${HOSTLT}
 
 LICENSE="GPL-3"
 SLOT="0"
+
+# see bug 530890 before installing on OS X
 KEYWORDS="~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-ma cos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="static-libs"
 
@@ -47,6 +53,8 @@ DEPEND="${RDEPEND}
 S=${WORKDIR}/${MY_P}
 
 src_unpack() {
+	unpack ${HOSTLT}.tar.gz
+	S="${HOSTLT_S}" elibtoolize
 	unpack ${MY_P}.tar.gz
 }
 
@@ -81,13 +89,18 @@ src_prepare() {
 	# objformat for years, so we don't want to rely on that.
 	sed -i -e '/objformat/s:if .*; then:if true; then:' support/shobj-conf || die
 
-	# support OSX Lion
-	sed -i -e 's/darwin10\*/darwin1\[01\]\*/g' support/shobj-conf || die
+	# support more recent OS X versions
+	sed -i -e 's/darwin10\*/darwin1\[01234\]\*/g' support/shobj-conf || die
 
 	ln -s ../.. examples/rlfe/readline # for local readline headers
 }
 
 src_configure() {
+	cd "${HOSTLT_S}" || die
+	econf $(use_enable static-libs static)
+	export PATH="${HOSTLT_S}:${PATH}"
+	cd "${S}"
+
 	# fix implicit decls with widechar funcs
 	append-cppflags -D_GNU_SOURCE
 	# http://lists.gnu.org/archive/html/bug-readline/2010-07/msg00013.html
@@ -111,6 +124,7 @@ src_configure() {
 	# This is for rlfe, but we need to make sure LDFLAGS doesn't change
 	# so we can re-use the config cache file between the two.
 	append-ldflags -L.
+	export LDFLAGS="-L${S}/shlib ${LDFLAGS}" # search local dirs first
 
 	multilib-minimal_src_configure
 }
@@ -119,8 +133,10 @@ multilib_src_configure() {
 	ECONF_SOURCE=${S} \
 	econf \
 		--cache-file="${BUILD_DIR}"/config.cache \
+		--docdir="${EPREFIX}"/usr/share/doc/${PF} \
 		--with-curses \
-		$(use_enable static-libs static)
+		--disable-shared # use libtool instead
+		# $(use_enable static-libs static)
 
 	if multilib_is_native_abi && ! tc-is-cross-compiler ; then
 		# code is full of AC_TRY_RUN()
@@ -132,29 +148,32 @@ multilib_src_configure() {
 }
 
 multilib_src_compile() {
-	emake
+	emake shared || die
 
 	if multilib_is_native_abi && ! tc-is-cross-compiler ; then
 		# code is full of AC_TRY_RUN()
 		cd examples/rlfe || die
 		local l
 		for l in readline history ; do
-			ln -s ../../shlib/lib${l}*$(get_libname)* lib${l}$(get_libname)
+			ln -s ../../shlib/lib${l}$(get_libname)* lib${l}$(get_libname)
 			ln -sf ../../lib${l}.a lib${l}.a
 		done
+		emake LTLINK='libtool --mode=link --tag=CC' || die
 		emake
 	fi
 }
 
 multilib_src_install() {
-	default
+	export PATH=${HOSTLT_S}:${PATH}
+	emake DESTDIR="${D}" install-shared || die
 
 	if multilib_is_native_abi ; then
-		gen_usr_ldscript -a readline history #4411
-
 		if ! tc-is-cross-compiler; then
 			dobin examples/rlfe/rlfe
 		fi
+
+		# must come after installing rlfe, bug #455512
+		gen_usr_ldscript -a readline history #4411
 	fi
 }
 
