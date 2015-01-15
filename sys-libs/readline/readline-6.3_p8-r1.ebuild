@@ -1,4 +1,4 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=4
@@ -39,7 +39,7 @@ LICENSE="GPL-3"
 SLOT="0"
 
 # see bug 530890 before installing on OS X
-KEYWORDS="~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-ma cos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="static-libs"
 
 RDEPEND=">=sys-libs/ncurses-5.9-r3[${MULTILIB_USEDEP}]
@@ -136,7 +136,6 @@ multilib_src_configure() {
 		--docdir="${EPREFIX}"/usr/share/doc/${PF} \
 		--with-curses \
 		--disable-shared # use libtool instead
-		# $(use_enable static-libs static)
 
 	if multilib_is_native_abi && ! tc-is-cross-compiler ; then
 		# code is full of AC_TRY_RUN()
@@ -159,12 +158,11 @@ multilib_src_compile() {
 			ln -sf ../../lib${l}.a lib${l}.a
 		done
 		emake LTLINK='libtool --mode=link --tag=CC' || die
-		emake
 	fi
 }
 
 multilib_src_install() {
-	export PATH=${HOSTLT_S}:${PATH}
+	export PATH="${HOSTLT_S}:${PATH}"
 	emake DESTDIR="${D}" install-shared || die
 
 	if multilib_is_native_abi ; then
