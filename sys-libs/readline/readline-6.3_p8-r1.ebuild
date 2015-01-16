@@ -71,6 +71,7 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-6.1-aix-soname.patch
 	epatch "${FILESDIR}"/${PN}-6.1-aix-expfull.patch
 	epatch "${FILESDIR}"/${PN}-6.2-rlfe-tgoto.patch #385091
+	epatch "${FILESDIR}"/${PN}-6.3-libtool.patch
 	epatch "${FILESDIR}"/${PN}-6.3-interix.patch
 	epatch "${FILESDIR}"/${PN}-6.3-darwin-shlib-versioning.patch
 	epatch "${FILESDIR}"/${PN}-6.3-fix-long-prompt-vi-search.patch
