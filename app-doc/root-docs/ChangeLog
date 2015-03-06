@@ -1,0 +1,11 @@
+# ChangeLog for app-doc/root-docs
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+*root-docs-9999 (06 Mar 2015)
+
+  06 Mar 2015; Guilherme Amadio <amadio@gentoo.org> +root-docs-9999.ebuild,
+  +files/root-docs-6.00.01-fillpatterns.patch,
+  +files/root-docs-6.00.01-makehtml.patch, +metadata.xml:
+  new ebuild
+
