@@ -19,9 +19,4 @@ RDEPEND=""
 
 DOCS="FONTLOG.txt Booklet-ComicNeue.pdf"
 FONT_SUFFIX="otf"
-
 FONT_S="${S}/OTF"
-
-src_install() {
-	font_src_install
-}
