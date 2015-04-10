@@ -43,9 +43,9 @@ src_prepare() {
 }
 
 src_configure() {
-	local mycmakeargs=(
+	local mycmakeargs="
 		$(cmake-utils_use_build test)
-	)
-	use mic || mycmakeargs+="-DMIC_BUILD=OFF"
+		$(cmake-utils_use_build mic MIC)
+	"
 	cmake-utils_src_configure
 }

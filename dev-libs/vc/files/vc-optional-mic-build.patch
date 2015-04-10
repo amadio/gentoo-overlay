@@ -17,9 +17,9 @@ index 23b0472..8c5b9a5 100644
  vc_determine_compiler()
 -find_package(MIC)
 +
-+option(MIC_BUILD "Build Vc library for MIC architecture" ON)
++option(BUILD_MIC "Build Vc library for MIC architecture" ON)
 +
-+if (MIC_BUILD)
++if (BUILD_MIC)
 +   find_package(MIC)
 +endif()
  
