@@ -25,7 +25,7 @@ HOMEPAGE="http://code.compeng.uni-frankfurt.de/projects/vc"
 
 LICENSE="LGPL-3"
 SLOT="0"
-IUSE="test"
+IUSE="test mic"
 
 src_unpack() {
 	git-r3_src_unpack
@@ -38,9 +38,14 @@ src_unpack() {
 	fi
 }
 
+src_prepare() {
+	epatch "${FILESDIR}"/${PN}-optional-mic-build.patch
+}
+
 src_configure() {
 	local mycmakeargs=(
 		$(cmake-utils_use_build test)
 	)
+	use mic || mycmakeargs+="-DMIC_BUILD=OFF"
 	cmake-utils_src_configure
 }

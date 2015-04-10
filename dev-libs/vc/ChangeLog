@@ -2,6 +2,10 @@
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
 # $Header: $
 
+  10 Apr 2015; Guilherme Amadio <amadio@gentoo.org> vc-9999.ebuild,
+  +files/vc-optional-mic-build.patch:
+  make MIC build optional
+
 *vc-9999 (01 Apr 2015)
 
   01 Apr 2015; Guilherme Amadio <amadio@gentoo.org> +vc-9999.ebuild,

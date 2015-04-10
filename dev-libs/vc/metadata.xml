@@ -4,4 +4,7 @@
 	<maintainer>
 		<email>amadio@gentoo.org</email>
 	</maintainer>
+<use>
+  <flag name="mic">Enable build of Vc library for MIC architecture</flag>
+</use>
 </pkgmetadata>
