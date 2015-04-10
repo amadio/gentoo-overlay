@@ -1,0 +1,10 @@
+# ChangeLog for sci-physics/hepmc
+# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+*hepmc-9999 (10 Apr 2015)
+
+  10 Apr 2015; Guilherme Amadio <amadio@gentoo.org> +hepmc-9999.ebuild,
+  +metadata.xml:
+  Live ebuild
+
