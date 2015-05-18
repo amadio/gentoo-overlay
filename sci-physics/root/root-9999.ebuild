@@ -7,7 +7,6 @@ EAPI=5
 if [[ ${PV} == "9999" ]] ; then
 	inherit git-r3
 	EGIT_REPO_URI="http://root.cern.ch/git/root.git"
-	EGIT_COMMIT="v6-03-02"
 	KEYWORDS=""
 else
 	SRC_URI="ftp://root.cern.ch/${PN}/${PN}_v${PV}.source.tar.gz"
@@ -15,7 +14,7 @@ else
 	S="${WORKDIR}/${PN}"
 fi
 
-PYTHON_COMPAT=( python2_{6,7} )
+PYTHON_COMPAT=( python2_7 )
 
 inherit elisp-common eutils fdo-mime fortran-2 multilib python-single-r1 \
 	toolchain-funcs user versionator
