@@ -14,7 +14,6 @@ HOMEPAGE="https://savannah.cern.ch/projects/hepmc/"
 if [[ ${PV} == 9999 ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="http://git.cern.ch/pub/hepmc3"
-	EGIT_COMMIT="alpha5.0"
 else
 	SRC_URI="http://lcgapp.cern.ch/project/simu/HepMC/download/${MYP}.tar.gz"
 	S="${WORKDIR}/${MYP}"
