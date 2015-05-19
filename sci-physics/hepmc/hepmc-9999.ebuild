@@ -14,7 +14,7 @@ HOMEPAGE="https://savannah.cern.ch/projects/hepmc/"
 if [[ ${PV} == 9999 ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="http://git.cern.ch/pub/hepmc3"
-	EGIT_COMMIT="alpha3.0"
+	EGIT_COMMIT="alpha5.0"
 else
 	SRC_URI="http://lcgapp.cern.ch/project/simu/HepMC/download/${MYP}.tar.gz"
 	S="${WORKDIR}/${MYP}"
@@ -75,10 +75,15 @@ src_configure() {
 	local momentum_conf="MEV"
 	use gev && momentum_conf="GEV"
 	mycmakeargs+=(
+		-DCMAKE_INSTALL_PREFIX=/usr
 		-Dlength=${length_conf}
 		-Dmomentum=${momentum_conf}
 	)
 	cmake-utils_src_configure
+
+	cd ../${P}_build
+	#sed -i -e '/touch_nocreate/d' rootIO/CMakeFiles/HepMCrootIO.dir/build.make || die
+	cp ../${P}/rootIO/include/rootIO_Classes.hh rootIO/rootIO_Classes.h || die
 }
 
 src_compile() {
