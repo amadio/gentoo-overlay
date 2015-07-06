@@ -4,7 +4,7 @@
 
 EAPI=5
 
-inherit cmake-utils eutils fortran-2 versionator multilib
+inherit cmake-utils eutils versionator multilib
 
 PV1=$(get_version_component_range 1 ${PV})
 PV2=$(get_version_component_range 2 ${PV})
