@@ -7,12 +7,12 @@ EAPI="5"
 inherit font
 
 DESCRIPTION="Mathematica's Fonts for MathML"
-HOMEPAGE="http://support.wolfram.com/technotes/latestfonts.en.html"
+HOMEPAGE="http://www.wolfram.com/mathematica"
 SRC_URI="http://support.wolfram.com/kb/data/uploads/2014/08/TrueType.zip -> ${P}.zip"
 
 LICENSE="WRI-EULA"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
+KEYWORDS="~amd64 ~amd64-linux ~x86 ~x86-linux"
 IUSE=""
 
 RESTRICT="binchecks mirror strip"

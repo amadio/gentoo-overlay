@@ -2,6 +2,10 @@
 # Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
 # $Header: $
 
+  06 Aug 2015; Guilherme Amadio <amadio@gentoo.org>
+  mathematica-fonts-10.0.ebuild:
+  update URL and keywords
+
   09 Mar 2015; <amadio@gentoo.org> mathematica-fonts-10.0.ebuild:
   use versioned zip file and other enhancements
 
