@@ -4,26 +4,26 @@
 
 EAPI=5
 
-inherit cmake-utils git-r3
-
-DESCRIPTION="SIMD Vector Class Library for C++"
-HOMEPAGE="https://github.com/VcDevel/Vc"
+inherit cmake-utils
 
 VC_TEST_DATA=( reference-{acos,asin,atan,ln,log2,log10,sincos}-{dp,sp}.dat )
 for i in ${VC_TEST_DATA[@]}; do
 	SRC_URI+="test? ( http://compeng.uni-frankfurt.de/~kretz/Vc-testdata/$i -> ${P}-${i} ) "
 done
 
-EGIT_REPO_URI="https://github.com/VcDevel/Vc"
-KEYWORDS=""
+SRC_URI+=" https://github.com/VcDevel/Vc/archive/${PV}.tar.gz -> ${P}.tar.gz"
+KEYWORDS="~amd64 ~amd64-linux ~x86 ~x86-linux"
+
+DESCRIPTION="SIMD Vector Class Library for C++"
+HOMEPAGE="https://github.com/VcDevel/Vc"
 
 LICENSE="LGPL-3"
 SLOT="0"
 IUSE="test mic"
 
 src_unpack() {
-	git-r3_src_unpack
-
+	default_src_unpack
+	S="${WORKDIR}"/Vc-${PV}
 	if use test ; then
 		mkdir -p "${WORKDIR}"/${P}_build/tests || die
 		for i in ${VC_TEST_DATA[@]}; do
