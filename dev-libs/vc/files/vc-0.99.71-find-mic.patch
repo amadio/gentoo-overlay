@@ -1,0 +1,25 @@
+From f4c5c273fea28810de122cc6096ba5d9692aec77 Mon Sep 17 00:00:00 2001
+From: Guilherme Amadio <amadio@ncc.unesp.br>
+Date: Tue, 11 Aug 2015 15:19:12 +0200
+Subject: [PATCH] Fix search path for Intel compiler
+
+---
+ cmake/FindMIC.cmake | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cmake/FindMIC.cmake b/cmake/FindMIC.cmake
+index c9fc26f..bc3a97f 100644
+--- a/cmake/FindMIC.cmake
++++ b/cmake/FindMIC.cmake
+@@ -44,7 +44,7 @@
+ set(MIC_FOUND false)
+ set(MIC_NATIVE_FOUND false)
+ 
+-file(GLOB _intel_dirs "/opt/intel/composer_xe_*")
++file(GLOB _intel_dirs "@GENTOO_PREFIX@/opt/intel/composer*xe*")
+ list(SORT _intel_dirs)
+ list(REVERSE _intel_dirs)
+ find_path(MIC_SDK_DIR bin/intel64_mic/icpc PATHS
+-- 
+2.5.0
+

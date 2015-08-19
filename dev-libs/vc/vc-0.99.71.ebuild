@@ -33,10 +33,14 @@ src_unpack() {
 }
 
 src_prepare() {
-	epatch "${FILESDIR}"/${PN}-optional-mic-build.patch
+	epatch \
+	"${FILESDIR}"/${PN}-optional-mic-build.patch \
+	"${FILESDIR}"/${PN}-0.99.71-find-mic.patch
 }
 
 src_configure() {
+	sed -i -e "s:@GENTOO_PREFIX@:${EPREFIX}:" "${S}"/cmake/FindMIC.cmake || die
+
 	local mycmakeargs="
 		$(cmake-utils_use_build test)
 		$(cmake-utils_use_build mic MIC)
