@@ -301,6 +301,7 @@ src_configure() {
 		--disable-builtin-pcre
 		--disable-builtin-zlib
 		--disable-werror
+		--disable-vc
 		--enable-explicitlink
 		--enable-shared
 		--enable-soversion
@@ -327,7 +328,6 @@ src_configure() {
 		$(use_enable math minuit2)
 		$(use_enable math roofit)
 		$(use_enable math tmva)
-		$(use_enable math vc)
 		$(use_enable math vdt)
 		$(use_enable math unuran)
 		$(use_enable memstat)
