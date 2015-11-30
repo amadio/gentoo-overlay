@@ -15,7 +15,7 @@ for i in ${VC_TEST_DATA[@]}; do
 done
 
 EGIT_REPO_URI="https://github.com/VcDevel/Vc"
-KEYWORDS=""
+KEYWORDS="~x86 ~amd64"
 
 LICENSE="LGPL-3"
 SLOT="0"
@@ -35,7 +35,7 @@ src_unpack() {
 src_prepare() {
 	epatch \
 	"${FILESDIR}"/${PN}-optional-mic-build.patch \
-	"${FILESDIR}"/${PN}-0.99.71-find-mic.patch
+	"${FILESDIR}"/${P}-find-mic.patch
 }
 
 src_configure() {
