@@ -39,7 +39,7 @@ src_prepare() {
 }
 
 src_configure() {
-	sed -i -e "s:@GENTOO_PREFIX@:${EPREFIX}:" "${S}"/cmake/FindMIC.cmake || die
+	sed -i -e "s:@EPREFIX@:${EPREFIX}:" "${S}"/cmake/FindMIC.cmake || die
 
 	local mycmakeargs="
 		$(cmake-utils_use_build test)
