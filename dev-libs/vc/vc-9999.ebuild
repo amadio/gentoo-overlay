@@ -33,9 +33,7 @@ src_unpack() {
 }
 
 src_prepare() {
-	epatch \
-	"${FILESDIR}"/${PN}-optional-mic-build.patch \
-	"${FILESDIR}"/${P}-find-mic.patch
+	epatch "${FILESDIR}"/${P}-find-mic.patch
 }
 
 src_configure() {
@@ -43,7 +41,7 @@ src_configure() {
 
 	local mycmakeargs="
 		$(cmake-utils_use_build test)
-		$(cmake-utils_use_build mic MIC)
+		$(cmake-utils_use_build mic ENABLE_MIC)
 	"
 	cmake-utils_src_configure
 }

@@ -1,4 +1,4 @@
-From 0397574537fc4ac7d0d4d38e57ace1da05f66ea0 Mon Sep 17 00:00:00 2001
+From 36c0d8791e3d550d16eb3599cc8e453b7e5dc4bc Mon Sep 17 00:00:00 2001
 From: Guilherme Amadio <amadio@ncc.unesp.br>
 Date: Mon, 30 Nov 2015 18:41:15 +0100
 Subject: [PATCH] Fix search path for Intel compiler
@@ -8,21 +8,21 @@ Subject: [PATCH] Fix search path for Intel compiler
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/cmake/FindMIC.cmake b/cmake/FindMIC.cmake
-index ee6e18a..ef070a1 100644
+index 875af21..d25c047 100644
 --- a/cmake/FindMIC.cmake
 +++ b/cmake/FindMIC.cmake
-@@ -56,9 +56,9 @@
- set(MIC_FOUND false)
- set(MIC_NATIVE_FOUND false)
+@@ -59,9 +59,9 @@ set(MIC_OFFLOAD_FOUND false)
  
--file(GLOB _intel_dirs "/opt/intel/compilers_and_libraries_*/linux")
-+file(GLOB _intel_dirs "@EPREFIX@/opt/intel/compilers_and_libraries_*/linux")
- if ("${_intel_dirs}" STREQUAL "")
--  file(GLOB _intel_dirs "/opt/intel/composer_xe_*")
-+  file(GLOB _intel_dirs "@EPREFIX@/opt/intel/composer_xe_*")
- endif()
+ option(ENABLE_MIC "Enable native builds for the MIC architecture (Intel Knights Corner)" ON)
+ if(ENABLE_MIC)
+-   file(GLOB _intel_dirs "/opt/intel/compilers_and_libraries_*/linux")
++   file(GLOB _intel_dirs "@EPREFIX@/opt/intel/compilers_and_libraries_*/linux")
+    if ("${_intel_dirs}" STREQUAL "")
+-      file(GLOB _intel_dirs "/opt/intel/composer_xe_*")
++      file(GLOB _intel_dirs "@EPREFIX@/opt/intel/composer_xe_*")
+    endif()
  
- list(SORT _intel_dirs)
+    list(SORT _intel_dirs)
 -- 
-2.6.3
+2.6.4
 
