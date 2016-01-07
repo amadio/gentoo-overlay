@@ -16,7 +16,7 @@ DOC_URI="ftp://root.cern.ch/${PN}/doc"
 
 SLOT="0/$(get_version_component_range 1-3 ${PV})"
 LICENSE="LGPL-2.1 freedist MSttfEULA LGPL-3 libpng UoI-NCSA"
-KEYWORDS="~amd64-linux ~x86-linux"
+KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
 IUSE="+X afs avahi doc emacs examples fits fftw gdml geocad
 	graphviz http kerberos ldap +math +memstat mpi mysql odbc
 	+opengl openmp oracle postgres prefix pythia6 pythia8
