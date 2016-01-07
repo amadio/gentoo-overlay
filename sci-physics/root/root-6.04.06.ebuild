@@ -106,8 +106,6 @@ DEPEND="${CDEPEND}
 RDEPEND="${CDEPEND}
 	xinetd? ( sys-apps/xinetd )"
 
-PDEPEND="doc? ( ~app-doc/root-docs-${PV}[http=,math=] )"
-
 # install stuff in ${P} and not ${PF} for easier tracking in root-docs
 DOC_DIR="/usr/share/doc/${P}"
 
