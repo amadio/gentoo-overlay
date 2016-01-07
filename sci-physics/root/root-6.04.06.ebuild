@@ -1,16 +1,8 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
 EAPI=5
-
-if [[ ${PV} == "9999" ]] ; then
-	inherit git-r3
-	EGIT_REPO_URI="http://root.cern.ch/git/root.git"
-else
-	SRC_URI="ftp://root.cern.ch/${PN}/${PN}_v${PV}.source.tar.gz"
-	KEYWORDS="~amd64 ~x86"
-fi
 
 PYTHON_COMPAT=( python2_7 )
 
@@ -19,14 +11,16 @@ inherit elisp-common eutils fdo-mime fortran-2 multilib python-single-r1 \
 
 DESCRIPTION="C++ data analysis framework and interpreter from CERN"
 HOMEPAGE="http://root.cern.ch/"
+SRC_URI="ftp://root.cern.ch/${PN}/${PN}_v${PV}.source.tar.gz"
 DOC_URI="ftp://root.cern.ch/${PN}/doc"
 
 SLOT="0/$(get_version_component_range 1-3 ${PV})"
 LICENSE="LGPL-2.1 freedist MSttfEULA LGPL-3 libpng UoI-NCSA"
+KEYWORDS="~amd64-linux ~x86-linux"
 IUSE="+X afs avahi doc emacs examples fits fftw gdml geocad
 	graphviz http kerberos ldap +math +memstat mpi mysql odbc
 	+opengl openmp oracle postgres prefix pythia6 pythia8
-	python qt4 shadow sqlite ssl table +tiff xinetd xml xrootd"
+	python qt4 R shadow sqlite ssl table +tiff xinetd xml xrootd"
 
 # TODO: add support for: davix
 # TODO: ROOT-6 supports x32 ABI, but half of its dependencies doesn't
@@ -47,6 +41,7 @@ CDEPEND="
 	media-libs/freetype:2=
 	media-libs/libpng:0=
 	>=sys-devel/clang-3.4:=
+	sys-libs/ncurses:=
 	sys-libs/zlib:0=
 	X? (
 		media-libs/ftgl:0=
@@ -91,6 +86,7 @@ CDEPEND="
 	pythia6? ( sci-physics/pythia:6= )
 	pythia8? ( >=sci-physics/pythia-8.1.80:8= )
 	python? ( ${PYTHON_DEPS} )
+	R? ( dev-lang/R )
 	shadow? ( virtual/shadow )
 	sqlite? ( dev-db/sqlite:3= )
 	ssl? ( dev-libs/openssl:0= )
@@ -118,7 +114,7 @@ DOC_DIR="/usr/share/doc/${P}"
 OC_UNSUPPORTED="6.8.0"
 
 die_compiler() {
-	eerror "You are using a $(tc-getCXX) without C++$1 capabilities"
+	eerror "You are using a $(tc-getCXX)-$5 without C++$1 capabilities"
 	die "Need one of the following C++$1 capable compilers:\n"\
 		"    >=sys-devel/gcc[cxx]-$2\n"\
 		"    >=sys-devel/clang-$3\n"\
@@ -131,23 +127,26 @@ die_compiler() {
 # $3 - clang++
 # $4 - icc/icpc
 check_compiler() {
+	local ver
 	case "$(tc-getCXX)" in
 		*clang++*)
-			version_is_at_least "$3" "$(has_version sys-devel/clang)" || die_compiler "$1" "$2" "$3" "$4"
+			ver="$(best_version sys-devel/clang | sed 's:sys-devel/clang-::')"
 		;;
 		*g++*)
-			version_is_at_least "$2" "$(gcc-version)" || die_compiler "$1" "$2" "$3" "$4"
+			ver="$(gcc-version)"
 		;;
 		*icc*|*icpc*)
-			version_is_at_least "$4" "$(has_version dev-lang/icc)" || die_compiler "$1" "$2" "$3" "$4"
+			ver="$(best_version dev-lang/icc | sed 's:dev-lang/icc-::')"
 			eerror "ROOT-6 is known not to build with ICC."
 			eerror "Please report any isuses upstream."
 		;;
 		*)
 			ewarn "You are using an unsupported compiler."
 			ewarn "Please report any issues upstream."
+			return 0
 		;;
 	esac
+	version_is_at_least "$3" "${ver}" || die_compiler "$1" "$2" "$3" "$4" "${ver}"
 }
 
 pkg_setup() {
@@ -207,17 +206,25 @@ pkg_setup() {
 }
 
 src_prepare() {
+	# Second version of makepch is required in order to generate
+	# PCH file appropriate for Gentoo include headers layout.
+	# This can be done only at install stage, when files are placed
+	# as appropriate. Premature modification of makepch.sh will
+	# broke build process, however.
+	#cp "etc/dictpch/makepch.sh" "etc/dictpch/makepch-gentoo.sh" || die
+
 	epatch \
 		"${FILESDIR}"/${PN}-5.28.00b-glibc212.patch \
 		"${FILESDIR}"/${PN}-5.32.00-afs.patch \
 		"${FILESDIR}"/${PN}-5.32.00-cfitsio.patch \
 		"${FILESDIR}"/${PN}-5.32.00-chklib64.patch \
-		"${FILESDIR}"/${PN}-5.34.13-desktop.patch \
 		"${FILESDIR}"/${PN}-5.34.13-unuran.patch \
 		"${FILESDIR}"/${PN}-6.00.01-dotfont.patch \
-		"${FILESDIR}"/${PN}-6.00.01-geocad.patch \
 		"${FILESDIR}"/${PN}-6.00.01-llvm.patch \
-		"${FILESDIR}"/${PN}-6.00.01-nobyte-compile.patch
+		"${FILESDIR}"/${PN}-6.00.01-nobyte-compile.patch \
+		"${FILESDIR}"/${P}-prop-flags.patch
+		# "${FILESDIR}"/${PN}-6.02.05-xrootd4.patch
+		# "${FILESDIR}"/${PN}-6.02.05-dictpch.patch \
 
 	# make sure we use system libs and headers
 	rm montecarlo/eg/inc/cfortran.h README/cfortran.doc || die
@@ -301,6 +308,7 @@ src_configure() {
 		--disable-builtin-lzma
 		--disable-builtin-pcre
 		--disable-builtin-zlib
+		--disable-vc
 		--disable-werror
 		--enable-explicitlink
 		--enable-shared
@@ -309,6 +317,9 @@ src_configure() {
 		--nohowto
 		--with-afs-shared=yes
 		--with-sys-iconpath="${EPREFIX}/usr/share/pixmaps"
+		# Invalid option '-mtune=native'. Try ./configure --help
+		# --cflags=\"${CFLAGS}\"
+		# --cxxflags=\"${CXXFLAGS}\"
 		$(use_enable X x11)
 		$(use_enable X asimage)
 		$(use_enable X xft)
@@ -328,7 +339,6 @@ src_configure() {
 		$(use_enable math minuit2)
 		$(use_enable math roofit)
 		$(use_enable math tmva)
-		$(use_enable math vc)
 		$(use_enable math vdt)
 		$(use_enable math unuran)
 		$(use_enable memstat)
@@ -344,6 +354,7 @@ src_configure() {
 		$(use_enable python)
 		$(use_enable qt4 qt)
 		$(use_enable qt4 qtgsi)
+		$(use_enable R r)
 		$(use_enable shadow shadowpw)
 		$(use_enable sqlite)
 		$(use_enable ssl)
@@ -358,6 +369,7 @@ src_configure() {
 	# installed with USE="-postgres"
 	use postgres && myconf+=( --with-pgsql-incdir=$(pg_config --includedir) )
 
+	einfo "Configuring with ${myconf[@]}"
 	./configure ${myconf[@]} || die "configure failed"
 }
 
@@ -409,7 +421,7 @@ cleanup_install() {
 	rm -r etc/root/daemons || die
 	# these should be in PATH
 	mv etc/root/proof/utils/pq2/pq2* usr/bin/ || die
-	rm ${DOC_DIR#/}/{INSTALL,LICENSE} || die
+	rm ${DOC_DIR#/}/INSTALL || die
 	use examples || rm -r ${DOC_DIR#/}/examples || die
 
 	# clean hardcoded sandbox paths
@@ -425,7 +437,8 @@ cleanup_install() {
 
 src_install() {
 	ROOTSYS="${S}" emake DESTDIR="${D}" install
-	dodoc README.md
+	insinto "${DOC_DIR}"
+	doins README.md
 
 	echo "LDPATH=${EPREFIX%/}/usr/$(get_libdir)/root" > 99root
 	use pythia8 && echo "PYTHIA8=${EPREFIX%/}/usr" >> 99root
@@ -435,11 +448,6 @@ src_install() {
 		python_optimize "${D}/usr/$(get_libdir)/root"
 	fi
 	use emacs && elisp-install ${PN} build/misc/*.{el,elc}
-	if use examples; then
-		# these should really be taken care of by the root make install
-		insinto ${DOC_DIR}/examples/tutorials/tmva
-		doins -r tmva/test
-	fi
 	doenvd 99root
 
 	# The build system installs Emacs support unconditionally in the wrong
@@ -452,8 +460,6 @@ src_install() {
 
 	# do not copress files used by ROOT's CLI (.credit, .demo, .license)
 	docompress -x "${DOC_DIR}"/{CREDITS,examples/tutorials}
-	# needed for .license command to work
-	dosym "${ED}"usr/portage/licenses/LGPL-2.1 "${DOC_DIR}/LICENSE"
 }
 
 pkg_postinst() {

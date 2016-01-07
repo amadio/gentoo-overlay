@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -272,6 +272,7 @@ src_configure() {
 		--docdir="${EPREFIX}${DOC_DIR}"
 		--tutdir="${EPREFIX}${DOC_DIR}/examples/tutorials"
 		--testdir="${EPREFIX}${DOC_DIR}/examples/tests"
+		--disable-vc
 		--disable-werror
 		--nohowto
 	)
@@ -316,7 +317,6 @@ src_configure() {
 			$(use_enable math minuit2)
 			$(use_enable math roofit)
 			$(use_enable math tmva)
-			$(use_enable math vc)
 			$(use_enable math vdt)
 			$(use_enable math unuran)
 			$(use_enable mysql)
