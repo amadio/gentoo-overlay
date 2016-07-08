@@ -1,19 +1,19 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=4
+EAPI=5
 
 inherit cmake-utils
 
 MYP=HepMC-${PV}
 
 DESCRIPTION="Event Record for Monte Carlo Generators"
-HOMEPAGE="https://savannah.cern.ch/projects/hepmc/"
+HOMEPAGE="https://gitlab.cern.ch/hepmc/HepMC3"
 
 if [[ ${PV} == 9999 ]]; then
 	inherit git-r3
-	EGIT_REPO_URI="http://git.cern.ch/pub/hepmc3"
+	EGIT_REPO_URI="https://:@gitlab.cern.ch:8443/hepmc/HepMC3.git"
 else
 	SRC_URI="http://lcgapp.cern.ch/project/simu/HepMC/download/${MYP}.tar.gz"
 	S="${WORKDIR}/${MYP}"
