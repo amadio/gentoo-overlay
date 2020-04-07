@@ -1,37 +1,32 @@
+#
+# Run repoman via travis
+# See https://github.com/mrueg/repoman-travis
+#
+
 language: python
-
+cache: pip
 python:
-  - pypy
-
-branches:
-  only:
-      - master
-
+    - pypy
 env:
-  - PV="2.3.69"
-
+    - PORTAGE_VER="2.3.69"
 before_install:
-  - sudo apt-get -qq update
-  - pip install lxml
-
+    - sudo apt-get -qq update
+install:
+    - pip install lxml PyYAML
 before_script:
-  - mkdir travis-overlay
-  - mv !(travis-overlay) travis-overlay/
-  - mv .git travis-overlay/
-  - wget "https://github.com/gentoo/portage/archive/portage-${PV}.tar.gz" -O portage-${PV}.tar.gz
-  - wget "https://github.com/gentoo-mirror/gentoo/archive/master.tar.gz" -O portage-tree.tar.gz
-  - wget "https://raw.githubusercontent.com/mrueg/repoman-travis/master/spinner.sh"
-  - sudo chmod a+rwX /etc/passwd /etc/group /etc /usr spinner.sh
-  - chmod a+rwx spinner.sh
-  - echo "portage:x:250:250:portage:/var/tmp/portage:/bin/false" >> /etc/passwd
-  - echo "portage::250:portage,travis" >> /etc/group
-  - mkdir -p /etc/portage/ /usr/portage/distfiles
-  - tar xzf portage-${PV}.tar.gz && mv portage-portage-${PV} portage-${PV}
-  - tar xzf portage-tree.tar.gz -C /usr/portage --strip-components=1
-  - cp portage-${PV}/cnf/repos.conf /etc/portage/
-  - ln -s /usr/portage/profiles/base/ /etc/portage/make.profile
-  - wget "http://www.gentoo.org/dtd/metadata.dtd" -O /usr/portage/distfiles/metadata.dtd
-  - cd travis-overlay
-
+    - sudo chmod a+rwX /etc/passwd /etc/group /etc /usr
+    - mkdir -p travis-overlay /etc/portage /usr/portage/distfiles
+    - mv !(travis-overlay) travis-overlay/
+    - mv .git travis-overlay/
+    - wget "https://raw.githubusercontent.com/mrueg/repoman-travis/master/spinner.sh"
+    - wget -qO - "https://github.com/gentoo/portage/archive/portage-${PORTAGE_VER}.tar.gz" | tar xz
+    - wget -qO - "https://github.com/gentoo-mirror/gentoo/archive/master.tar.gz" | tar xz -C /usr/portage --strip-components=1
+    - chmod a+rwx spinner.sh
+    - echo "portage:x:250:250:portage:/var/tmp/portage:/bin/false" >> /etc/passwd
+    - echo "portage::250:portage,travis" >> /etc/group
+    - wget "https://www.gentoo.org/dtd/metadata.dtd" -O /usr/portage/distfiles/metadata.dtd
+    - ln -s $TRAVIS_BUILD_DIR/portage-portage-${PORTAGE_VER}/cnf/repos.conf /etc/portage/repos.conf
+    - ln -s /usr/portage/profiles/default/linux/amd64/17.1 /etc/portage/make.profile
+    - cd travis-overlay
 script:
-  - ./../spinner.sh "python ../portage-${PV}/repoman/bin/repoman full -d"
+    - ./../spinner.sh "python ../portage-portage-${PORTAGE_VER}/repoman/bin/repoman full -d"
