@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>amadio@gentoo.org</email>
+	</maintainer>
+	<upstream>
+		<remote-id type="github">root-project/veccore</remote-id>
+	</upstream>
+	<use>
+		<flag name="vc">Enable support for <pkg>dev-libs/vc</pkg> backend</flag>
+		<flag name="umesimd">Enable support for <pkg>dev-libs/umesimd</pkg> backend</flag>
+	</use>
+</pkgmetadata>
