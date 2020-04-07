@@ -152,6 +152,7 @@ src_configure() {
 		-DLLVM_CONFIG="$(type -P "${CHOST}-llvm-config")"
 		-DCMAKE_INSTALL_PREFIX="${EPREFIX%/}/usr/lib/${PN}/$(ver_cut 1-2)"
 		-DCMAKE_INSTALL_MANDIR="${EPREFIX%/}/usr/lib/${PN}/$(ver_cut 1-2)/share/man"
+		-DCMAKE_INSTALL_LIBDIR="lib"
 		-DDEFAULT_SYSROOT="${EPREFIX}"
 		-DCLING_BUILD_PLUGINS=OFF
 		-Dexplicitlink=ON
@@ -285,44 +286,37 @@ src_compile() {
 src_install() {
 	cmake-utils_src_install
 
-	ROOTSYS=${EPREFIX%/}/usr/$(get_libdir)/${PN}/$(ver_cut 1-2)
+	ROOTSYS=${EPREFIX%/}/usr/lib/${PN}/$(ver_cut 1-2)
 	ROOTENV=$((9999 - $(ver_cut 2)))${PN}-$(ver_cut 1-2)
-
-	# ROOT fails without this symlink because it only looks in lib
-	if [[ ! -d ${D}/${ROOTSYS}/lib ]]; then
-		dosym $(get_libdir) /usr/$(get_libdir)/${PN}/$(ver_cut 1-2)/lib
-	fi
 
 	cat > ${ROOTENV} <<- EOF || die
 	MANPATH="${ROOTSYS}/share/man"
 	PATH="${ROOTSYS}/bin"
 	ROOTPATH="${ROOTSYS}/bin"
-	LDPATH="${ROOTSYS}/$(get_libdir)"
+	LDPATH="${ROOTSYS}/lib"
 	EOF
 
 	if use python; then
-		echo "PYTHONPATH=${ROOTSYS}/$(get_libdir)" >> ${ROOTENV} || die
+		echo "PYTHONPATH=\"${ROOTSYS}/lib\"" >> ${ROOTENV} || die
 	fi
 
 	doenvd ${ROOTENV}
-
-	pushd "${D}/${ROOTSYS}" > /dev/null
 
 	if use emacs; then
 		elisp-install ${PN}-$(ver_cut 1-2) "${BUILD_DIR}"/root-help.el
 	fi
 
+	pushd "${D}/${ROOTSYS}" > /dev/null
+
+	rm -r test emacs bin/*.{csh,sh,fish} || die
+
 	if ! use examples; then
 		rm -r tutorials || die
 	fi
 
-	if ! use tmva; then
-		rm -r tmva || die
-	fi
-
-	# environment variables are managed by env.d
-	rm -f bin/*.{sh,csh,fish} || die
-
-	# clean up unnecessary files from installation
-	rm -r emacs test || die
+	# create versioned symlinks for binaries
+	cd bin;
+	for exe in *; do
+		dosym "${exe}" "/usr/lib/${PN}/$(ver_cut 1-2)/bin/${exe}-$(ver_cut 1-2)"
+	done
 }
