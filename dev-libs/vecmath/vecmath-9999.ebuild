@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Authors
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -21,9 +21,6 @@ src_prepare() {
 	# use correct libdir
 	sed -i -e "s@lib/cmake@$(get_libdir)/cmake@g" CMakeLists.txt || die
 
-	# unbundle dev-libs/vdt
-	sed -i -e '/#GetVDT/,/^install.*builtin_vdt/d' CMakeLists.txt || die
-	sed -i -e 's@VecMath/Private/@@' include/VecMath/Math/*.h || die
 	cmake-utils_src_prepare
 }
 
