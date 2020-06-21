@@ -1,9 +1,9 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit cmake-utils
+inherit cmake
 
 DESCRIPTION="Vectorized math library from CERN"
 HOMEPAGE="https://github.com/dpiparo/vdt"
@@ -15,7 +15,7 @@ KEYWORDS="~amd64 ~amd64-linux ~arm-linux ~x64-macos"
 
 src_prepare() {
 	sed -i -e "/DESTINATION lib/s@lib@$(get_libdir)@" lib/CMakeLists.txt
-	cmake-utils_src_prepare
+	cmake_src_prepare
 }
 
 src_configure() {
@@ -23,5 +23,5 @@ src_configure() {
 		-DSSE=OFF # breaks on arm
 		-DUSERFLAGS="$CXXFLAGS"
 	)
-	cmake-utils_src_configure
+	cmake_src_configure
 }
