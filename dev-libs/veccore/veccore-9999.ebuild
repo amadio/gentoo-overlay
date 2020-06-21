@@ -1,20 +1,25 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Guilherme Amadio
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-inherit cmake-utils git-r3
+inherit cmake git-r3
 
-DESCRIPTION="Open source library for portable SIMD programming"
+DESCRIPTION="C++ Library for Portable SIMD Vectorization"
 HOMEPAGE="https://github.com/root-project/veccore"
 EGIT_REPO_URI="https://github.com/root-project/veccore"
 
 LICENSE="Apache-2.0"
 SLOT="0"
-# KEYWORDS="~amd64 ~amd64-linux ~arm-linux ~x64-macos"
+KEYWORDS=""
 IUSE="test vc umesimd"
 
-RDEPEND="vc? ( dev-libs/vc ) umesimd? ( dev-libs/umesimd )"
+RESTRICT="!test? ( test )"
+
+RDEPEND="
+	umesimd? ( dev-libs/umesimd )
+	vc? ( dev-libs/vc )
+"
 
 src_configure() {
 	local mycmakeargs=(
@@ -22,5 +27,5 @@ src_configure() {
 		-DUMESIMD=$(usex umesimd)
 		-DVC=$(usex vc)
 	)
-	cmake-utils_src_configure
+	cmake_src_configure
 }
