@@ -1,0 +1,56 @@
+From 25dfdfc41b9dafdbe3b140d7b9f4ef61c7cd57ac Mon Sep 17 00:00:00 2001
+From: Mattias Ellert <mattias.ellert@physics.uu.se>
+Date: Mon, 2 Jan 2023 13:41:19 +0100
+Subject: [PATCH 5/6] config.h must not be included in public header file
+
+This reverts 5c022c1
+---
+ src/api/ccapi/voms_api.h | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/src/api/ccapi/voms_api.h b/src/api/ccapi/voms_api.h
+index 0cb4e15..7a272cd 100644
+--- a/src/api/ccapi/voms_api.h
++++ b/src/api/ccapi/voms_api.h
+@@ -26,8 +26,6 @@
+ #ifndef VOMS_API_H
+ #define VOMS_API_H
+ 
+-#include "config.h"
+-
+ #include <fstream>
+ #include <string>
+ #include <vector>
+-- 
+2.38.1
+
+From b7a926e38db6b883f012c39ebcb10b4ee20912cc Mon Sep 17 00:00:00 2001
+From: Francesco Giacomini <francesco.giacomini@cnaf.infn.it>
+Date: Mon, 2 Jan 2023 13:42:26 +0100
+Subject: [PATCH 6/6] Include config.h before other header files
+
+This is an alternative (and not wrong) solution to commit 5c022c1
+to define the macro OPENSSL_COMPAT_API before OpenSSL does it.
+---
+ src/api/ccapi/api_util.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/api/ccapi/api_util.cc b/src/api/ccapi/api_util.cc
+index e023cfc..848bfbd 100644
+--- a/src/api/ccapi/api_util.cc
++++ b/src/api/ccapi/api_util.cc
+@@ -23,10 +23,10 @@
+  *
+  *********************************************************************/
+ 
++#include "config.h"
+ #include "api_util.h"
+ 
+ extern "C" {
+-#include "config.h"
+ #include "replace.h"
+ 
+ #include <sys/types.h>
+-- 
+2.38.1
+

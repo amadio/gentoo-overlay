@@ -1,0 +1,171 @@
+Add "lexparse.h" headers for lexer/parser integration and include them
+in a few strategic places. This avoids build failures with future
+compilers that do not support implicit function declarations by
+default.
+
+Submitted upstream: <https://github.com/italiangrid/voms/pull/112>
+
+diff --git a/src/sslutils/lex.namespaces.c b/src/sslutils/lex.namespaces.c
+index af359bf9bceda153..646156af910adf7f 100644
+--- a/src/sslutils/lex.namespaces.c
++++ b/src/sslutils/lex.namespaces.c
+@@ -1410,6 +1410,7 @@ static yyconst flex_int16_t yy_rule_linenum[15] =
+ #include <stdlib.h>
+ 
+ #include "parsertypes.h"
++#include "lexparse.h"
+ #include "namespaces.h"
+ #ifndef strndup
+ extern char *strndup(const char*, size_t);
+diff --git a/src/sslutils/lex.signing.c b/src/sslutils/lex.signing.c
+index 6906a5ad88460343..e32364d73b7f3dbf 100644
+--- a/src/sslutils/lex.signing.c
++++ b/src/sslutils/lex.signing.c
+@@ -2356,6 +2356,7 @@ static yyconst flex_int16_t yy_rule_linenum[17] =
+ 
+ #include "parsertypes.h"
+ #include "signing_policy.h"
++#include "lexparse.h"
+ #ifndef strndup
+ extern char *strndup(const char*, size_t);
+ #endif
+diff --git a/src/sslutils/lexparse.h b/src/sslutils/lexparse.h
+new file mode 100644
+index 0000000000000000..675a10fb1bb1de1b
+--- /dev/null
++++ b/src/sslutils/lexparse.h
+@@ -0,0 +1,4 @@
++/* Declarations for lexer/parser integration. */
++union YYSTYPE;
++int signinglex (union YYSTYPE *, void *);
++int namespaceslex (union YYSTYPE *, void *);
+diff --git a/src/sslutils/namespaces.c b/src/sslutils/namespaces.c
+index 780845d7362bfc5a..a00649943137ee8e 100644
+--- a/src/sslutils/namespaces.c
++++ b/src/sslutils/namespaces.c
+@@ -108,6 +108,7 @@
+ #include <stdlib.h>
+ 
+ #include "parsertypes.h"
++#include "lexparse.h"
+ #include "listfunc.h"
+ 
+ char **parse_subjects(char *string);
+diff --git a/src/sslutils/namespaces.l b/src/sslutils/namespaces.l
+index c3e6b04a7483569b..cdd10df32bdfe689 100644
+--- a/src/sslutils/namespaces.l
++++ b/src/sslutils/namespaces.l
+@@ -30,6 +30,7 @@
+ #include <stdlib.h>
+ 
+ #include "parsertypes.h"
++#include "lexparse.h"
+ #include "namespaces.h"
+ #ifndef strndup
+ extern char *strndup(const char*, size_t);
+diff --git a/src/sslutils/namespaces.y b/src/sslutils/namespaces.y
+index 23e51933a4dd7be5..9be4271cc9360bff 100644
+--- a/src/sslutils/namespaces.y
++++ b/src/sslutils/namespaces.y
+@@ -29,6 +29,7 @@
+ #include <stdlib.h>
+ 
+ #include "parsertypes.h"
++#include "lexparse.h"
+ #include "listfunc.h"
+ 
+ char **parse_subjects(char *string);
+diff --git a/src/sslutils/signing_policy.c b/src/sslutils/signing_policy.c
+index 03f13ab243e73a80..f36374b77fdb5ae2 100644
+--- a/src/sslutils/signing_policy.c
++++ b/src/sslutils/signing_policy.c
+@@ -110,6 +110,7 @@
+ #include <ctype.h>
+ 
+ #include "parsertypes.h"
++#include "lexparse.h"
+ #include "listfunc.h"
+ 
+ char **parse_subjects(char *string);
+diff --git a/src/sslutils/signing_policy.l b/src/sslutils/signing_policy.l
+index c5115a191d97c3b1..c521dd5d31a6912d 100644
+--- a/src/sslutils/signing_policy.l
++++ b/src/sslutils/signing_policy.l
+@@ -31,6 +31,7 @@
+ 
+ #include "parsertypes.h"
+ #include "signing_policy.h"
++#include "lexparse.h"
+ #ifndef strndup
+ extern char *strndup(const char*, size_t);
+ #endif
+diff --git a/src/sslutils/signing_policy.y b/src/sslutils/signing_policy.y
+index 93fab4fb48f861ab..a56ac37d35afbc28 100644
+--- a/src/sslutils/signing_policy.y
++++ b/src/sslutils/signing_policy.y
+@@ -31,6 +31,7 @@
+ #include <ctype.h>
+ 
+ #include "parsertypes.h"
++#include "lexparse.h"
+ #include "listfunc.h"
+ 
+ char **parse_subjects(char *string);
+diff --git a/src/utils/lex.yy.c b/src/utils/lex.yy.c
+index afa13ea112d9d944..ac1768b0806e91ea 100644
+--- a/src/utils/lex.yy.c
++++ b/src/utils/lex.yy.c
+@@ -486,6 +486,7 @@ char *yytext;
+ 
+ #include "fakeparsertypes.h"
+ #include "vomsparser.h"
++#include "lexparse.h"
+ 
+ #line 491 "lex.yy.c"
+ 
+diff --git a/src/utils/lexparse.h b/src/utils/lexparse.h
+new file mode 100644
+index 0000000000000000..9937dfa8d1ebbc98
+--- /dev/null
++++ b/src/utils/lexparse.h
+@@ -0,0 +1,4 @@
++/* Declarations for lexer/parser integration. */
++union YYSTYPE;
++int yylex();
++void yyerror(const char *);
+diff --git a/src/utils/vomsfake.y b/src/utils/vomsfake.y
+index 7d47bf8dc46fb8bd..afc32f61a485fd10 100644
+--- a/src/utils/vomsfake.y
++++ b/src/utils/vomsfake.y
+@@ -19,6 +19,7 @@
+ #include <string.h>
+ 
+ #include "fakeparsertypes.h"
++#include "lexparse.h"
+ 
+ #define MAX_SIZE 200
+ 
+diff --git a/src/utils/vomsparser.c b/src/utils/vomsparser.c
+index ad61f1333e7c3fc0..8312571ad5fbd2b1 100644
+--- a/src/utils/vomsparser.c
++++ b/src/utils/vomsparser.c
+@@ -90,6 +90,7 @@
+ #include <string.h>
+ 
+ #include "fakeparsertypes.h"
++#include "lexparse.h"
+ 
+ #define MAX_SIZE 200
+ 
+diff --git a/src/utils/vomsparser.l b/src/utils/vomsparser.l
+index 649bea734141b511..1bf72cd98a0b4d04 100644
+--- a/src/utils/vomsparser.l
++++ b/src/utils/vomsparser.l
+@@ -31,6 +31,7 @@
+ 
+ #include "fakeparsertypes.h"
+ #include "vomsparser.h"
++#include "lexparse.h"
+ %}
+ 
+ %x STR
