@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+  <maintainer type="person">
+    <email>amadio@gentoo.org</email>
+    <name>Guilherme Amadio</name>
+  </maintainer>
+  <longdescription lang="en">
+  EOS is a software solution that aims to provide fast and reliable multi-PB
+  disk-only storage technology for both LHC and non-LHC use-cases at CERN. The
+  core of the implementation is the XRootD framework which provides feature-rich
+  remote access protocol. The storage system is running on commodity hardware
+  with disks in JBOD configuration. It is written mostly in C/C++, with some of
+  the extra modules in Python. Files can be accessed via native XRootD protocol,
+  a POSIX-like FUSE client or HTTP(S) and WebDav protocol.
+  </longdescription>
+  <upstream>
+    <remote-id type="github">cern-eos/eos</remote-id>
+  </upstream>
+  <use>
+    <flag name="http">Enable http protocol support</flag>
+    <flag name="macaroons">Enable support for macaroons with <pkg>dev-libs/libmacaroons</pkg></flag>
+    <flag name="scitokens">Enable support for scitokens with <pkg>dev-cpp/scitokens-cpp</pkg></flag>
+    <flag name="server">Install EOS server in addition to client</flag>
+  </use>
+</pkgmetadata>
