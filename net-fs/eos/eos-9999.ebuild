@@ -66,6 +66,7 @@ CDEPEND="
 	sys-libs/ncurses
 	sys-libs/readline
 	sys-libs/zlib
+	sys-process/procps
 	dev-libs/elfutils
 	net-libs/zeromq
 	virtual/libcrypt:=
