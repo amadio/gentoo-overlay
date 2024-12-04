@@ -1,10 +1,11 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{9..12} )
-# CMAKE_MAKEFILE_GENERATOR=emake
+CMAKE_MAKEFILE_GENERATOR=emake
+PYTHON_COMPAT=( python3_{9..13} )
+
 DOCS_BUILDER="doxygen"
 DOCS_DEPEND="
 	media-gfx/graphviz
@@ -40,22 +41,21 @@ CDEPEND="
 	app-arch/bzip2
 	app-arch/lz4
 	app-arch/zstd
-	dev-cpp/abseil-cpp
+	dev-cpp/abseil-cpp:=
 	dev-cpp/sparsehash
 	dev-libs/isa-l
 	dev-libs/isa-l_crypto
 	dev-libs/jsoncpp
 	dev-libs/jemalloc
 	dev-libs/libevent
-	dev-libs/libfmt
+	dev-libs/libfmt:=
 	dev-libs/libxml2:2=
 	dev-libs/openssl:0=
-	dev-libs/protobuf
+	dev-libs/protobuf:=
 	dev-libs/rocksdb:0=
 	dev-libs/xxhash
 	net-libs/cppzmq
-	net-libs/libmicrohttpd
-	>=net-libs/xrootd-5.6[fuse,http?,kerberos,macaroons?,scitokens?,server?,systemd?]
+	>=net-libs/xrootd-5.7[fuse,http?,kerberos,macaroons?,scitokens?,server?,systemd?]
 	sys-apps/attr
 	sys-apps/help2man
 	sys-fs/fuse:0=
@@ -66,14 +66,14 @@ CDEPEND="
 	sys-libs/ncurses
 	sys-libs/readline
 	sys-libs/zlib
-	sys-process/procps
+	sys-process/procps:=
 	dev-libs/elfutils
 	net-libs/zeromq
 	virtual/libcrypt:=
 	${PYTHON_DEPS}
 	server? (
-		dev-cpp/folly
-		net-libs/grpc
+		dev-cpp/folly:=
+		net-libs/grpc:=
 		net-nds/openldap
 	)
 	scitokens? ( dev-cpp/scitokens-cpp )
@@ -107,10 +107,8 @@ pkg_setup() {
 }
 
 src_prepare() {
-	rm -rf common/fmt
-	rm -rf namespace/ns_quarkdb/qclient/src/fmt
-	rm -rf quarkdb/deps/qclient/src/fmt
-	sed -i -e '/find_program(CCACHE_FOUND ccache)/d' CMakeLists.txt || die
+	sed -i -e '/find_program.CCACHE/d' CMakeLists.txt || die
+	sed -i -e '/find_program.CCACHE/d' quarkdb/CMakeLists.txt || die
 	cmake_src_prepare
 }
 
@@ -118,6 +116,7 @@ src_configure() {
 	local mycmakeargs=(
 		-DASAN=OFF
 		-DTSAN=OFF
+		-DCCACHE=OFF
 		-DCOVERAGE=OFF
 		-DBUILD_MANPAGES=$(usex doc)
 		-DBUILD_XRDCL_RAIN_PLUGIN=$(usex server)
