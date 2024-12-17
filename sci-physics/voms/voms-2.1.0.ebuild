@@ -1,4 +1,4 @@
-# Copyright 2023 Gentoo Authors
+# Copyright 2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -7,10 +7,11 @@ inherit autotools
 
 DESCRIPTION="Virtual Organization Membership Service"
 HOMEPAGE="https://github.com/italiangrid/voms"
-SRC_URI="https://github.com/italiangrid/voms/archive/refs/tags/v${PV/_/-}.tar.gz -> ${P}.tar.gz"
+SRC_URI="https://github.com/italiangrid/voms/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="Apache-2.0"
 SLOT="0"
+
 KEYWORDS="~amd64 ~x86"
 
 DEPEND="
@@ -21,15 +22,6 @@ DEPEND="
 "
 RDEPEND="${DEPEND}"
 BDEPEND="dev-build/libtool"
-
-PATCHES=(
-	"${FILESDIR}"/voms-2.1.0-c99.patch
-	"${FILESDIR}"/voms-2.1.0-config-h.patch
-	"${FILESDIR}"/voms-2.1.0-exception.patch
-	"${FILESDIR}"/voms-2.1.0-warnings.patch
-)
-
-S="${WORKDIR}"/${PN}-${PV/_/-}
 
 src_prepare() {
 		default
