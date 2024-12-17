@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+  <maintainer type="person">
+    <email>amadio@gentoo.org</email>
+    <name>Guilherme Amadio</name>
+  </maintainer>
+  <longdescription lang="en">
+    Dask is a simple task scheduling system that uses directed acyclic
+    graphs (DAGs) of tasks to break up large computations into many
+    small ones. Dask-expr is Dask DataFrames with query optimization.
+    This is a rewrite of Dask DataFrame that includes query optimization
+    and generally improved organization.
+  </longdescription>
+  <upstream>
+    <remote-id type="pypi">dask-expr</remote-id>
+    <remote-id type="github">dask/dask-expr</remote-id>
+  </upstream>
+</pkgmetadata>
