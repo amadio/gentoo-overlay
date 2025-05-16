@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -10,7 +10,7 @@ DOCS_BUILDER="doxygen"
 DOCS_DEPEND="
 	media-gfx/graphviz
 	virtual/latex-base
-	python? ( dev-python/sphinx )
+	dev-python/sphinx
 "
 
 inherit cmake python-single-r1 tmpfiles
@@ -20,13 +20,13 @@ HOMEPAGE="https://eos-web.web.cern.ch/eos-web/"
 
 LICENSE="GPL-3+"
 SLOT="0"
-IUSE="debug doc http macaroons python scitokens server systemd test"
+IUSE="debug doc server test"
 
 RESTRICT="!test? ( test )"
 
 if [[ ${PV} =~ "9999" ]] ; then
 	inherit git-r3
-	EGIT_REPO_URI="https://github.com/cern-eos/eos.git"
+	EGIT_REPO_URI="https://gitlab.cern.ch/dss/eos.git"
 else
 	KEYWORDS="~amd64"
 	SRC_URI="https://storage-ci.web.cern.ch/storage-ci/eos/diopside/tarball/${P}-1.tar.gz"
@@ -34,7 +34,7 @@ else
 fi
 
 REQUIRED_USE="
-	python? ( ${PYTHON_REQUIRED_USE} )
+	${PYTHON_REQUIRED_USE}
 "
 
 CDEPEND="
@@ -42,6 +42,7 @@ CDEPEND="
 	app-arch/lz4
 	app-arch/zstd
 	dev-cpp/abseil-cpp:=
+	dev-cpp/folly:=
 	dev-cpp/sparsehash
 	dev-libs/isa-l
 	dev-libs/isa-l_crypto
@@ -55,7 +56,7 @@ CDEPEND="
 	dev-libs/rocksdb:0=
 	dev-libs/xxhash
 	net-libs/cppzmq
-	>=net-libs/xrootd-5.7[fuse,http?,kerberos,macaroons?,scitokens?,server?,systemd?]
+	>=net-libs/xrootd-5.7[fuse,http,kerberos,macaroons,scitokens,server?,systemd,xrdec]
 	sys-apps/attr
 	sys-apps/help2man
 	sys-fs/fuse:0=
@@ -72,12 +73,11 @@ CDEPEND="
 	virtual/libcrypt:=
 	${PYTHON_DEPS}
 	server? (
-		dev-cpp/folly:=
 		net-libs/grpc:=
 		net-nds/openldap
 	)
-	scitokens? ( dev-cpp/scitokens-cpp )
-	systemd? ( sys-apps/systemd )
+	dev-cpp/scitokens-cpp
+	sys-apps/systemd
 "
 DEPEND="${CDEPEND}"
 
@@ -103,7 +103,7 @@ QA_SONAME="
 "
 
 pkg_setup() {
-	use python && python_setup
+	python_setup
 }
 
 src_prepare() {
