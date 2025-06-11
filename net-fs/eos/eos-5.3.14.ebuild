@@ -56,7 +56,7 @@ CDEPEND="
 	dev-libs/rocksdb:0=
 	dev-libs/xxhash
 	net-libs/cppzmq
-	>=net-libs/xrootd-5.7[fuse,http,kerberos,macaroons,scitokens,server?,systemd,xrdec]
+	>=net-libs/xrootd-5.8[fuse,http,kerberos,macaroons,scitokens,server?,systemd,xrdec]
 	sys-apps/attr
 	sys-apps/help2man
 	sys-fs/fuse:0=
