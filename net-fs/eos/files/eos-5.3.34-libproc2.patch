@@ -1,0 +1,13 @@
+diff --git a/fst/storage/Publish.cc b/fst/storage/Publish.cc
+index a93910cbe..9a4366d87 100644
+--- a/fst/storage/Publish.cc
++++ b/fst/storage/Publish.cc
+@@ -399,7 +399,7 @@ static uint32_t GetNumOfKworkerProcs()
+ 
+   while (struct pids_stack* stack = procps_pids_get(info,
+                                     PIDS_FETCH_TASKS_ONLY)) {
+-    char* cmd = PIDS_VAL(0, str, stack, info);
++    char* cmd = PIDS_VAL(0, str, stack);
+ 
+     if (strstr(cmd, "kworker") == cmd) {
+       ++count;
