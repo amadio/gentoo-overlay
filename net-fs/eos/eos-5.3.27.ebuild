@@ -4,7 +4,7 @@
 EAPI=8
 
 CMAKE_MAKEFILE_GENERATOR=emake
-PYTHON_COMPAT=( python3_{9..13} )
+PYTHON_COMPAT=( python3_{9..14} )
 
 DOCS_BUILDER="doxygen"
 DOCS_DEPEND="
@@ -55,8 +55,9 @@ CDEPEND="
 	dev-libs/protobuf:=
 	dev-libs/rocksdb:0=
 	dev-libs/xxhash
+	net-libs/activemq-cpp:=
 	net-libs/cppzmq
-	>=net-libs/xrootd-5.8[fuse,http,kerberos,macaroons,scitokens,server?,systemd,xrdec]
+	>=net-libs/xrootd-5.8[fuse,http,kerberos,macaroons,scitokens,server?,systemd]
 	sys-apps/attr
 	sys-apps/help2man
 	sys-fs/fuse:0=
@@ -113,6 +114,9 @@ src_prepare() {
 }
 
 src_configure() {
+	# cmake-4 workaround
+	local -x CMAKE_POLICY_VERSION_MINIMUM="${CMAKE_POLICY_VERSION_MINIMUM:-3.16}"
+
 	local mycmakeargs=(
 		-DASAN=OFF
 		-DTSAN=OFF

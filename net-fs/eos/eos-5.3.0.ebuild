@@ -65,7 +65,7 @@ CDEPEND="
 	sys-libs/binutils-libs
 	sys-libs/ncurses
 	sys-libs/readline
-	sys-libs/zlib
+	virtual/zlib:=
 	sys-process/procps:=
 	dev-libs/elfutils
 	net-libs/zeromq
