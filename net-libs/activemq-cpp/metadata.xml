@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+  <maintainer type="person">
+    <email>amadio@gentoo.org</email>
+    <name>Guilherme Amadio</name>
+  </maintainer>
+  <longdescription lang="en">
+  Apache ActiveMQ is a popular open source, multi-protocol, Java-based
+  message broker. It supports industry standard protocols so users get
+  the benefits of client choices across a broad range of languages and
+  platforms. ActiveMQ C++ is the C++ client library to communicate with
+  an ActiveMQ message broker.
+  </longdescription>
+  <upstream>
+    <remote-id type="github">apache/activemq-cpp</remote-id>
+  </upstream>
+</pkgmetadata>
