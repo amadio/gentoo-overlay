@@ -1,10 +1,10 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
 CMAKE_MAKEFILE_GENERATOR=emake
-PYTHON_COMPAT=( python3_{9..14} )
+PYTHON_COMPAT=( python3_{10..14} )
 
 DOCS_BUILDER="doxygen"
 DOCS_DEPEND="
@@ -57,7 +57,7 @@ CDEPEND="
 	dev-libs/xxhash
 	net-libs/activemq-cpp:=
 	net-libs/cppzmq
-	>=net-libs/xrootd-5.9[fuse,http,kerberos,macaroons,scitokens,server?,systemd]
+	net-libs/xrootd:=[fuse,http,kerberos,macaroons,scitokens,server?,systemd]
 	sys-apps/attr
 	sys-apps/help2man
 	sys-fs/fuse:0=
@@ -104,7 +104,8 @@ QA_SONAME="
 "
 
 PATCHES=(
-		"${FILESDIR}/${P}-libproc2.patch"
+		"${FILESDIR}/eos-5.4.1-libproc2.patch"
+		"${FILESDIR}/eos-5.4.1-grpc.patch"
 )
 
 pkg_setup() {
@@ -145,7 +146,7 @@ src_configure() {
 
 src_install() {
 	cmake_src_install
-	fowners daemon:daemon /etc/xrd.cf.{auth,fed,fst,global-mq,mgm,mq,prefix,quarkdb,sync}
+	fowners daemon:daemon /etc/xrd.cf.{auth,fed,fst,mgm,prefix,quarkdb,sync}
 	fowners daemon:daemon /etc/eosarchived.conf
 	fowners daemon:daemon /etc/eos.keytab
 	fowners daemon:daemon /etc/eos.client.keytab

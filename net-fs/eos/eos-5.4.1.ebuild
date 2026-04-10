@@ -104,7 +104,8 @@ QA_SONAME="
 "
 
 PATCHES=(
-		"${FILESDIR}/${P}-libproc2.patch"
+		"${FILESDIR}/eos-5.4.1-libproc2.patch"
+		"${FILESDIR}/eos-5.4.1-grpc.patch"
 )
 
 pkg_setup() {
@@ -145,7 +146,7 @@ src_configure() {
 
 src_install() {
 	cmake_src_install
-	fowners daemon:daemon /etc/xrd.cf.{auth,fed,fst,global-mq,mgm,mq,prefix,quarkdb,sync}
+	fowners daemon:daemon /etc/xrd.cf.{auth,fed,fst,mgm,prefix,quarkdb,sync}
 	fowners daemon:daemon /etc/eosarchived.conf
 	fowners daemon:daemon /etc/eos.keytab
 	fowners daemon:daemon /etc/eos.client.keytab

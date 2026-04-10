@@ -1,0 +1,21 @@
+commit e46e22246507ed8bfe366fad179131f2531d74f2
+Author: Guilherme Amadio <guilherme@amadio.org>
+Date:   Wed Feb 25 16:47:07 2026 +0100
+
+    FST: Adapt code to procps-ng 4.0.5 and later
+    
+    https://gitlab.com/procps-ng/procps/-/commit/967fdcfb06e20aad0f31073474cb94545c9bdea5#line_9cd115f5e_245
+
+diff --git a/fst/storage/Publish.cc b/fst/storage/Publish.cc
+index ee37e53f4..fe623bb1e 100644
+--- a/fst/storage/Publish.cc
++++ b/fst/storage/Publish.cc
+@@ -359,7 +359,7 @@ static uint32_t GetNumOfKworkerProcs() {
+   procps_pids_new(&info, items, 1);
+ 
+   while (struct pids_stack* stack = procps_pids_get(info, PIDS_FETCH_TASKS_ONLY)) {
+-    char* cmd = PIDS_VAL(0, str, stack, info);
++    char* cmd = PIDS_VAL(0, str, stack);
+ 
+     if (strstr(cmd, "kworker") == cmd) { ++count; }
+   }

@@ -18,9 +18,6 @@
     <remote-id type="github">cern-eos/eos</remote-id>
   </upstream>
   <use>
-    <flag name="http">Enable http protocol support</flag>
-    <flag name="macaroons">Enable support for macaroons with <pkg>dev-libs/libmacaroons</pkg></flag>
-    <flag name="scitokens">Enable support for scitokens with <pkg>dev-cpp/scitokens-cpp</pkg></flag>
     <flag name="server">Install EOS server in addition to client</flag>
   </use>
 </pkgmetadata>
