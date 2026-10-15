@@ -1,0 +1,29 @@
+From 2681478a207ae4ec83976daca0de6d35b0d5c1b4 Mon Sep 17 00:00:00 2001
+From: Guilherme Amadio <guilherme@amadio.org>
+Date: Tue, 29 Sep 2026 20:17:12 +0200
+Subject: [PATCH 2/3] FST: Fix build with procps-ng versions where PIDS_VAL
+ takes 3 arguments
+
+Assisted-by: Claude:claude-opus-5-5
+Signed-off-by: Guilherme Amadio <guilherme@amadio.org>
+---
+ fst/storage/Publish.cc | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/fst/storage/Publish.cc b/fst/storage/Publish.cc
+index f7f5563cb..560751947 100644
+--- a/fst/storage/Publish.cc
++++ b/fst/storage/Publish.cc
+@@ -378,7 +378,8 @@ static uint32_t GetNumOfKworkerProcs() {
+   procps_pids_new(&info, items, 1);
+ 
+   while (struct pids_stack* stack = procps_pids_get(info, PIDS_FETCH_TASKS_ONLY)) {
+-    char* cmd = PIDS_VAL(0, str, stack, info);
++    // Avoid PIDS_VAL, whose arity changed across procps-ng 4.x releases
++    char* cmd = stack->head[0].result.str;
+ 
+     if (strstr(cmd, "kworker") == cmd) { ++count; }
+   }
+-- 
+2.55.0
+

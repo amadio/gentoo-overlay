@@ -1,0 +1,148 @@
+
+RocksDB 9.11 introduced DB::Open overloads taking std::unique_ptr<DB>*
+and RocksDB 10.1 removed the ones taking DB**. Add a small helper that
+picks the right overload at compile time so both old and new RocksDB
+versions are supported.
+
+diff --git a/quarkdb/src/CMakeLists.txt b/quarkdb/src/CMakeLists.txt
+index 0d3b4d8..76dd2a8 100644
+--- a/quarkdb/src/CMakeLists.txt
++++ b/quarkdb/src/CMakeLists.txt
+@@ -100,6 +100,7 @@ add_library(XrdQuarkDB SHARED
+   utils/Random.cc                         utils/Random.hh
+   utils/RequestCounter.cc                 utils/RequestCounter.hh
+   utils/Resilvering.cc                    utils/Resilvering.hh
++                                          utils/RocksDBOpen.hh
+                                           utils/ScopedAdder.hh
+                                           utils/StaticBuffer.hh
+   utils/Statistics.cc                     utils/Statistics.hh
+diff --git a/quarkdb/src/StateMachine.cc b/quarkdb/src/StateMachine.cc
+index 08df6bd..89b9eec 100644
+--- a/quarkdb/src/StateMachine.cc
++++ b/quarkdb/src/StateMachine.cc
+@@ -37,6 +37,7 @@
+ #include "storage/ParanoidManifestChecker.hh"
+ #include "utils/IntToBinaryString.hh"
+ #include "utils/TimeFormatting.hh"
++#include "utils/RocksDBOpen.hh"
+ #include <sys/stat.h>
+ #include <rocksdb/status.h>
+ #include <rocksdb/merge_operator.h>
+@@ -151,7 +152,7 @@ StateMachine::StateMachine(std::string_view f, bool write_ahead_log, bool bulk_l
+   }
+ 
+   rocksdb::DB *tmpdb = nullptr;
+-  rocksdb::Status status = rocksdb::DB::Open(options, filename, &tmpdb);
++  rocksdb::Status status = openRocksDB(options, filename, &tmpdb);
+   if(!status.ok()) qdb_throw("Cannot open " << quotes(filename) << ":" << status.ToString());
+ 
+   db.reset(tmpdb);
+diff --git a/quarkdb/src/raft/RaftJournal.cc b/quarkdb/src/raft/RaftJournal.cc
+index 14176c1..6c432c0 100644
+--- a/quarkdb/src/raft/RaftJournal.cc
++++ b/quarkdb/src/raft/RaftJournal.cc
+@@ -29,6 +29,7 @@
+ #include "utils/IntToBinaryString.hh"
+ #include "utils/StaticBuffer.hh"
+ #include "utils/StringUtils.hh"
++#include "utils/RocksDBOpen.hh"
+ #include "../deps/StringMatchLen.h"
+ #include "raft/RaftState.hh"
+ 
+@@ -188,7 +189,7 @@ void RaftJournal::openDB(const std::string &path) {
+   writeStallWarner.reset(new WriteStallWarner("raft-journal"));
+   options.listeners.emplace_back(writeStallWarner);
+ 
+-  rocksdb::Status status = rocksdb::DB::Open(options, path, &db);
++  rocksdb::Status status = openRocksDB(options, path, &db);
+   if(!status.ok()) qdb_throw("Error while opening journal in " << path << ":" << status.ToString());
+ }
+ 
+diff --git a/quarkdb/src/recovery/RecoveryEditor.cc b/quarkdb/src/recovery/RecoveryEditor.cc
+index 28dae7e..3f5f6e1 100644
+--- a/quarkdb/src/recovery/RecoveryEditor.cc
++++ b/quarkdb/src/recovery/RecoveryEditor.cc
+@@ -26,6 +26,7 @@
+ #include "Utils.hh"
+ #include "utils/StringUtils.hh"
+ #include "utils/IntToBinaryString.hh"
++#include "utils/RocksDBOpen.hh"
+ #include "storage/InternalKeyParsing.hh"
+ #include <rocksdb/status.h>
+ #include <rocksdb/merge_operator.h>
+@@ -38,13 +39,13 @@ using namespace quarkdb;
+ 
+ RecoveryEditor::RecoveryEditor(std::string_view path_) : path(path_) {
+   qdb_event("RECOVERY EDITOR: Opening rocksdb database at " << quotes(path));
+-  rocksdb::DB *tmpdb;
++  rocksdb::DB *tmpdb = nullptr;
+ 
+   rocksdb::Options options;
+   options.create_if_missing = false;
+   options.disable_auto_compactions = true;
+   options.max_open_files = quarkdb::getMaxOpenFiles();
+-  rocksdb::Status status = rocksdb::DB::Open(options, path, &tmpdb);
++  rocksdb::Status status = openRocksDB(options, path, &tmpdb);
+ 
+   if(!status.ok()) qdb_throw("Cannot open " << quotes(path) << ":" << status.ToString());
+   db.reset(tmpdb);
+diff --git a/quarkdb/src/utils/RocksDBOpen.hh b/quarkdb/src/utils/RocksDBOpen.hh
+new file mode 100644
+index 0000000..fc47264
+--- /dev/null
++++ b/quarkdb/src/utils/RocksDBOpen.hh
+@@ -0,0 +1,51 @@
++// ----------------------------------------------------------------------
++// File: RocksDBOpen.hh
++// ----------------------------------------------------------------------
++
++/************************************************************************
++ * quarkdb - a redis-like highly available key-value store              *
++ * Copyright (C) 2026 CERN/Switzerland                                  *
++ *                                                                      *
++ * This program is free software: you can redistribute it and/or modify *
++ * it under the terms of the GNU General Public License as published by *
++ * the Free Software Foundation, either version 3 of the License, or    *
++ * (at your option) any later version.                                  *
++ *                                                                      *
++ * This program is distributed in the hope that it will be useful,      *
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of       *
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        *
++ * GNU General Public License for more details.                         *
++ *                                                                      *
++ * You should have received a copy of the GNU General Public License    *
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.*
++ ************************************************************************/
++
++#ifndef QUARKDB_UTILS_ROCKSDB_OPEN_HH
++#define QUARKDB_UTILS_ROCKSDB_OPEN_HH
++
++#include <memory>
++#include <string>
++#include <rocksdb/db.h>
++#include <rocksdb/version.h>
++
++namespace quarkdb {
++
++//------------------------------------------------------------------------------
++// RocksDB 9.11 added DB::Open overloads taking std::unique_ptr<DB>*, and
++// RocksDB 10.1 removed the ones taking DB**. Support both.
++//------------------------------------------------------------------------------
++inline rocksdb::Status openRocksDB(const rocksdb::Options &options,
++  const std::string &path, rocksdb::DB **db) {
++#if ROCKSDB_MAJOR > 9 || (ROCKSDB_MAJOR == 9 && ROCKSDB_MINOR >= 11)
++  std::unique_ptr<rocksdb::DB> ptr;
++  rocksdb::Status status = rocksdb::DB::Open(options, path, &ptr);
++  *db = ptr.release();
++  return status;
++#else
++  return rocksdb::DB::Open(options, path, db);
++#endif
++}
++
++}
++
++#endif
+-- 
+2.55.0
+

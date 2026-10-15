@@ -97,6 +97,7 @@ RDEPEND="${CDEPEND}"
 QA_SONAME="
 	/usr/lib.*/libEos.*-5\.so
 	/usr/lib.*/libXrd.*-5\.so
+	/usr/lib.*/libXrd.*-6\.so
 	/usr/lib.*/libEosAuthOfs\.so
 	/usr/lib.*/libEosFstHttp\.so
 	/usr/lib.*/libEosFstOss\.so
@@ -104,8 +105,11 @@ QA_SONAME="
 "
 
 PATCHES=(
-		"${FILESDIR}/eos-5.4.1-libproc2.patch"
-		"${FILESDIR}/eos-5.4.1-grpc.patch"
+	"${FILESDIR}/eos-5.5.4-folly-glog.patch"
+	"${FILESDIR}/eos-5.5.4-procps-ng.patch"
+	"${FILESDIR}/eos-5.5.4-qclient-rocksdb11.patch"
+	"${FILESDIR}/eos-5.5.4-quarkdb-cppstd.patch"
+	"${FILESDIR}/eos-5.5.4-quarkdb-rocksdb11.patch"
 )
 
 pkg_setup() {
@@ -140,13 +144,15 @@ src_configure() {
 		-DSTACK_WALKING_BACKTRACE=ON
 		-DSTACK_WALKING_UNWIND=ON
 		-DPython3_EXECUTABLE="${PYTHON}"
+		-DCMAKE_CXX_STANDARD=20
+		-DEOS_INSTALL_TUI=OFF
 	)
 	cmake_src_configure
 }
 
 src_install() {
 	cmake_src_install
-	fowners daemon:daemon /etc/xrd.cf.{auth,fed,fst,mgm,prefix,quarkdb,sync}
+	fowners daemon:daemon /etc/xrd.cf.{auth,fed,fst,mgm,prefix,quarkdb}
 	fowners daemon:daemon /etc/eosarchived.conf
 	fowners daemon:daemon /etc/eos.keytab
 	fowners daemon:daemon /etc/eos.client.keytab

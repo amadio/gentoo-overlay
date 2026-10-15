@@ -1,0 +1,38 @@
+
+RocksDB 11 headers require C++20, but quarkdb forced -std=c++17 even
+when built as part of EOS with CMAKE_CXX_STANDARD=20.
+
+diff --git a/quarkdb/CMakeLists.txt b/quarkdb/CMakeLists.txt
+index 4314873..26721d0 100644
+--- a/quarkdb/CMakeLists.txt
++++ b/quarkdb/CMakeLists.txt
+@@ -146,7 +146,7 @@ endif()
+ #-------------------------------------------------------------------------------
+ # Compiler options
+ #-------------------------------------------------------------------------------
+-add_definitions(-Wall -Wextra -Wno-unused-parameter -std=c++17 -g -fPIC -DASIO_STANDALONE)
++add_definitions(-Wall -Wextra -Wno-unused-parameter -g -fPIC -DASIO_STANDALONE)
+ 
+ #-------------------------------------------------------------------------------
+ # Build source and tests
+diff --git a/quarkdb/cmake/CompileFlags.cmake b/quarkdb/cmake/CompileFlags.cmake
+index 6a2159c..ff2d3ae 100644
+--- a/quarkdb/cmake/CompileFlags.cmake
++++ b/quarkdb/cmake/CompileFlags.cmake
+@@ -1,9 +1,11 @@
+ 
+ #-------------------------------------------------------------------------------
+-# Require c++17
++# Require at least c++17, but respect a newer standard set by the parent project
+ #-------------------------------------------------------------------------------
+ include(CheckCXXCompilerFlag)
+-set(CMAKE_CXX_STANDARD 17)
++if(NOT CMAKE_CXX_STANDARD OR CMAKE_CXX_STANDARD LESS 17)
++  set(CMAKE_CXX_STANDARD 17)
++endif()
+ set(CMAKE_CXX_STANDARD_REQUIRED ON)
+ # Avoid having CMAKE treat include directories on imported libraries as systems
+ # includes. In newer gcc versions the systems includes are added using the
+-- 
+2.55.0
+

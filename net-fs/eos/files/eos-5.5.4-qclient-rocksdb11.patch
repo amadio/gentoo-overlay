@@ -1,0 +1,70 @@
+
+RocksDB 9.11 introduced DB::Open overloads taking std::unique_ptr<DB>*
+and RocksDB 10.1 removed the ones taking DB**. Add a small helper that
+picks the right overload at compile time so both old and new RocksDB
+versions are supported.
+
+diff --git a/namespace/ns_quarkdb/qclient/include/qclient/ParallelRocksDBPersistency.hh b/namespace/ns_quarkdb/qclient/include/qclient/ParallelRocksDBPersistency.hh
+index c9fcd1b..3e57bb0 100644
+--- a/namespace/ns_quarkdb/qclient/include/qclient/ParallelRocksDBPersistency.hh
++++ b/namespace/ns_quarkdb/qclient/include/qclient/ParallelRocksDBPersistency.hh
+@@ -139,9 +139,7 @@ private:
+   void InitializeDB()
+   {
+     rocksdb::Options opts = setupOptions();
+-    rocksdb::DB *ptr = nullptr;
+-    rocksdb::Status status = rocksdb::DB::Open(opts, dbpath, &ptr);
+-    db.reset(ptr);
++    rocksdb::Status status = openRocksDB(opts, dbpath, db);
+ 
+     if(!status.ok()) {
+       std::cerr << "Unable to open rocksdb persistent queue: " << status.ToString() << std::endl;
+diff --git a/namespace/ns_quarkdb/qclient/include/qclient/RocksDBPersistency.hh b/namespace/ns_quarkdb/qclient/include/qclient/RocksDBPersistency.hh
+index fe4cc83..5c4fac0 100644
+--- a/namespace/ns_quarkdb/qclient/include/qclient/RocksDBPersistency.hh
++++ b/namespace/ns_quarkdb/qclient/include/qclient/RocksDBPersistency.hh
+@@ -29,6 +29,7 @@
+ #include <rocksdb/db.h>
+ #include <rocksdb/filter_policy.h>
+ #include <rocksdb/table.h>
++#include <rocksdb/version.h>
+ 
+ #include "qclient/PersistencyLayer.hh"
+ 
+@@ -89,6 +90,22 @@ inline void deserializeVector(std::vector<std::string> &vec, const std::string &
+   }
+ }
+ 
++//------------------------------------------------------------------------------
++// RocksDB 9.11 added DB::Open overloads taking std::unique_ptr<DB>*, and
++// RocksDB 10.1 removed the ones taking DB**. Support both.
++//------------------------------------------------------------------------------
++inline rocksdb::Status openRocksDB(const rocksdb::Options &options,
++  const std::string &path, std::unique_ptr<rocksdb::DB> &db) {
++#if ROCKSDB_MAJOR > 9 || (ROCKSDB_MAJOR == 9 && ROCKSDB_MINOR >= 11)
++  return rocksdb::DB::Open(options, path, &db);
++#else
++  rocksdb::DB *ptr = nullptr;
++  rocksdb::Status status = rocksdb::DB::Open(options, path, &ptr);
++  db.reset(ptr);
++  return status;
++#endif
++}
++
+ inline std::string getKey(ItemIndex index) {
+   std::stringstream ss;
+   ss << "I" << intToBinaryString(index) << std::endl;
+@@ -106,9 +123,7 @@ public:
+     options.table_factory.reset(rocksdb::NewBlockBasedTableFactory(table_options));
+     options.create_if_missing = true;
+ 
+-    rocksdb::DB *ptr = nullptr;
+-    rocksdb::Status status = rocksdb::DB::Open(options, dbpath, &ptr);
+-    db.reset(ptr);
++    rocksdb::Status status = openRocksDB(options, dbpath, db);
+ 
+     if(!status.ok()) {
+       std::cerr << "Unable to open rocksdb persistent queue: " << status.ToString() << std::endl;
+-- 
+2.55.0
+
